@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  app:
+    extends:
+      file: templates.yml
+      service: main_app
+    container_name: ruian_sample_app
+    command: gunicorn -c compose/prod/app/gunicorn.conf.py config.wsgi:application
+    ports:
+      - "8006:8000"
+    volumes:
+      - ./staticfiles:/var/www/ruian-sample/staticfiles
+      - ./media:/var/www/ruian-sample/media
+
+  db:
+    image: postgres:14
+    container_name: ruian_sample_db
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - ruian_sample_postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./.env
+
+  redis:
+    image: redis:6-alpine
+    container_name: ruian_sample_redis
+    restart: always
+    volumes:
+      - ruian_sample_redis_data:/data
+
+volumes:
+  ruian_sample_postgres_data:
+  ruian_sample_redis_data:

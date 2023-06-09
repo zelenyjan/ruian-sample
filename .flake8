@@ -1,0 +1,23 @@
+[flake8]
+max-line-length = 120
+select = C,E,F,W,DJ,DJ10
+ignore = W503
+per-file-ignores =
+    __init__.py:F401,
+    tests/*.py:S101
+    config/settings/dev.py:F403,F405,
+    config/settings/test.py:F403,F405,
+exclude =
+    utility/*,
+    */migrations/*,
+    ruian/core/management/commands/tmp_cmd.py,
+min_python_version = 3.10
+# G: enable logging-format
+enable-extensions=G
+# FS003(fstring) - ignore missing prefix f
+extend-ignore=FS003
+# B902(bugbear) - first arg must be self or cls for methods
+extend-select=B902
+
+pytest-mark-no-parentheses = true
+pytest-fixture-no-parentheses = true

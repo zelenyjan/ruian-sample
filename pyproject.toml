@@ -1,0 +1,54 @@
+[tool.black]
+line-length = 120
+target-version = ["py310"]
+
+[tool.isort]
+profile = "black"
+py_version = 310
+add_imports = ["from __future__ import annotations"]
+no_lines_before = ["CONFIG", "FIRSTPARTY"]
+default_section = "THIRDPARTY"
+sections = [
+    "FUTURE",
+    "STDLIB",
+    "DJANGO",
+    "DRF",
+    "THIRDPARTY",
+    "CONFIG",
+    "FIRSTPARTY",
+    "LOCALFOLDER",
+]
+known_django = ["django"]
+known_drf = ["rest_framework"]
+known_config = ["config"]
+known_first_party = ["ruian"]
+
+[tool.poetry]
+name = "ruian-sample"
+version = "0.1.0"
+description = ""
+authors = ["Jan Zeleny <zelenja8@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+django = "^4.2.2"
+psycopg2-binary = "^2.9.6"
+django-environ = "^0.10.0"
+sentry-sdk = "^1.25.1"
+django-webpack-loader = "^2.0.0"
+django-solo = "^2.1.0"
+requests = "^2.31.0"
+django-model-utils = "^4.3.1"
+gunicorn = "^20.1.0"
+redis = "^4.5.5"
+djangorestframework = "^3.14.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.3.0"
+isort = "^5.12.0"
+colorama = "^0.4.6"
+flake8 = "^6.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

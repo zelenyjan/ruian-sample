@@ -1,0 +1,8 @@
+node_modules
+media
+staticfiles
+docs
+.mypy_cache
+.pytest_cache
+README.md
+certbot
