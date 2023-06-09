@@ -1,0 +1,164 @@
+name: Lint, Test & Build
+
+on:
+  - pull_request
+  - push
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  WEBPACK_IMAGE_NAME: webpack
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build testing APP image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: compose/prod/app/Dockerfile
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          load: true
+
+      - name: black
+        run: docker run --tty --rm --entrypoint black ${{ steps.meta.outputs.tags }} --check .
+
+      - name: isort
+        run: docker run --tty --rm --entrypoint black ${{ steps.meta.outputs.tags }} --check .
+
+      - name: flake8
+        run: docker run --tty --rm --entrypoint flake8 ${{ steps.meta.outputs.tags }} .
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.WEBPACK_IMAGE_NAME }}
+
+      - name: Build WEBPACK image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: compose/prod/webpack/Dockerfile
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          load: true
+
+      - name: Prettier
+        run: docker run --tty --rm ${{ steps.meta.outputs.tags }} npm run prettier:check
+
+      - name: eslint
+        run: docker run --tty --rm ${{ steps.meta.outputs.tags }} npm run eslint:check
+
+      - name: Get files from docker image
+        run: |
+          mkdir -p /tmp/frontend/dist
+          mkdir -p /tmp/frontend/webpack
+          docker create --name dummy ${{ steps.meta.outputs.tags }}
+          docker cp dummy:/app/static/dist /tmp/frontend/dist
+          docker cp dummy:/app/templates/webpack /tmp/frontend/webpack
+
+      - name: Upload dist statics
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: /tmp/frontend/dist/
+          retention-days: 1
+
+      - name: Upload dist templates
+        uses: actions/upload-artifact@v3
+        with:
+          name: templates
+          path: /tmp/frontend/webpack/
+          retention-days: 1
+
+  push:
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Download dist statics
+        uses: actions/download-artifact@v3
+        with:
+          name: dist
+          path: static/
+
+      - name: Download dist templates
+        uses: actions/download-artifact@v3
+        with:
+          name: templates
+          path: templates/
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build final APP image and export
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: compose/prod/app/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  delete-artifacts:
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [push]
+    steps:
+      - name: Delete dist
+        uses: geekyeggo/delete-artifact@v2
+        with:
+          name: dist
+
+      - name: Delete templates
+        uses: geekyeggo/delete-artifact@v2
+        with:
+          name: templates

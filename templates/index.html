@@ -1,0 +1,43 @@
+{% load render_bundle from webpack_loader %}
+{% load static %}
+
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ruian Sample</title>
+  {% render_bundle "main" "css" %}
+{#  <script type="text/javascript" src="https://client.smartform.cz/v2/smartform.js" async></script>#}
+{#  <script type="text/javascript">#}
+{#    var smartform = smartform || {};#}
+{##}
+{#    smartform.beforeInit = function () {#}
+{#      smartform.setClientId('v1m4zrLM9Y');#}
+{#    }#}
+{#    smartform.afterInit = function () {#}
+{#      var instance = smartform.getInstance()#}
+{#      instance.addressControl.addValidationCallback(validationCallback);#}
+{#    }#}
+{##}
+{#    function validationCallback(result) {#}
+{#      if (result.result.type == smartform.AddressValidationResultType.HIT) {#}
+{#        console.log(result.result.addressArray)#}
+{#      }#}
+{##}
+{#    }#}
+{#  </script>#}
+</head>
+<body>
+
+{% block content %}
+  <div class="container">
+    <div id="app"></div>
+  </div>
+{% endblock %}
+
+
+
+{% render_bundle "main" "js" %}
+</body>
+</html>

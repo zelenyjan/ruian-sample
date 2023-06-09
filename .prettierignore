@@ -1,0 +1,16 @@
+# Ignore artifacts:
+dist
+coverage
+node_modules
+.mypy_cache
+.pytest_cache
+htmlcov
+package-lock.json
+# django templates don't play nice with prettier
+*.html
+staticfiles
+
+# files generate by webpack and other scripts
+templates/webpack
+static/src/shared/locale/translations.json
+static/src/ruian/scss/_sprites.scss

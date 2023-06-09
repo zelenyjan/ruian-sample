@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  main_app:
+    image: ghcr.io/zelenyjan/ruian-sample:main
+    restart: always
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+      - redis
