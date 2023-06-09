@@ -10,18 +10,10 @@ done
 echo "PostgreSQL started"
 
 
-echo "Waiting for elastic..."
-while ! nc -z elastic 9200; do  # elastic container name and default port
-  sleep 0.1
-done
-echo "Elastic has started"
-
-
 if [ "$1" = "gunicorn" ]; then
   # run migrations and collect static only when app is starting
   python manage.py migrate --noinput
   python manage.py collectstatic --noinput
-  python manage.py update_index
 fi
 
 exec "$@"
