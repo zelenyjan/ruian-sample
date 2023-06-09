@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import multiprocessing
 
-module = "komplexnizdravi"
+module = "ruian"
 name = module
 bind = "0.0.0.0:8000"
 workers = multiprocessing.cpu_count() * 2 + 1

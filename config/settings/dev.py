@@ -21,7 +21,7 @@ LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
-        "komplexnizdravi": {"()": "config.logging.RuianFormatter"},
+        "ruian": {"()": "config.logging.RuianFormatter"},
         "colorama": {"()": "config.logging.ColoramaFormatter"},
     },
     "handlers": {

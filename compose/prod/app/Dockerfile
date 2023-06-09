@@ -31,7 +31,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # create the appropriate directories
-ENV APP_NAME=komplexnizdravi
+ENV APP_NAME=ruian-sample
 ENV APP_HOME=/var/www/$APP_NAME
 RUN mkdir -p $APP_HOME
 
